@@ -1,7 +1,8 @@
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
-                               QLineEdit, QPushButton, QMessageBox, QWidget, QFrame)
+                               QLineEdit, QPushButton, QMessageBox, QWidget, QFrame,
+                               QGraphicsDropShadowEffect)
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QGraphicsDropShadowEffect, QColor
+from PySide6.QtGui import QColor
 
 
 class CreateRoomDialog(QDialog):
