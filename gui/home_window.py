@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QMessageBox, QDialog, QStackedWidget,
-                               QFrame)
+                               QGraphicsDropShadowEffect, QFrame)
 from PySide6.QtCore import Qt, QTimer, Slot
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QColor
 from qfluentwidgets import SmoothScrollArea, PrimaryPushButton, PushButton, LineEdit

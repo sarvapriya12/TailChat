@@ -3,8 +3,7 @@ import sys
 import time
 from pathlib import Path
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                                QPushButton, QMessageBox, QCheckBox,
-                                QGraphicsDropShadowEffect)
+                                QPushButton, QMessageBox, QCheckBox, QGraphicsDropShadowEffect)
 from PySide6.QtCore import QThread, Signal, Slot, Qt, QTimer, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QPixmap, QColor, QPainter, QPainterPath, QLinearGradient
 
