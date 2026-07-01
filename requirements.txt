@@ -1,0 +1,6 @@
+supabase
+PySide6
+sounddevice
+pyogg
+numpy
+opencv-python

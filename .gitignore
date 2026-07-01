@@ -1,0 +1,52 @@
+# ── Secrets (NEVER commit these) ──────────────────────────────────────
+.env
+
+# ── Python ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+
+# ── Virtual environments ───────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── PyArmor / PyInstaller build output ────────────────────────────────
+obf_dist/
+*.spec.bak
+pyarmor.bug.log
+pyarmor_output/
+pyarmor-data/
+
+# ── IDE ────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+.vs/
+
+# ── App runtime data (generated on first run) ─────────────────────────
+logs/
+temp/
+cache/
+
+# ── OS files ───────────────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
+desktop.ini
+ehthumbs.db
+
+# ── Large binary / test files ──────────────────────────────────────────
+*.log
+*.zip
+*.exe
+*.whl
