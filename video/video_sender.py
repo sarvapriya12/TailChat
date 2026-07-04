@@ -26,7 +26,7 @@ class VideoSender:
             pass
         
         # Pre-compute the user_id header once instead of every frame
-        user_id_bytes = session.user_id.encode("utf-8")
+        user_id_bytes = session.net_id.encode("utf-8")
         self._header = bytes([len(user_id_bytes)]) + user_id_bytes
         
         self.camera = CameraCapture(

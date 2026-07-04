@@ -99,11 +99,11 @@ class TailChatHost:
                 return
 
             user_info = {
-                "id": user_id,
-                "display_name": join_packet["display_name"],
+                "user_id": user_id,
+                "display_name": join_packet.get("display_name", "Unknown"),
                 "email": join_packet.get("email", ""),
                 "avatar_url": join_packet.get("avatar_url", ""),
-                "tailscale_ip": join_packet["tailscale_ip"],
+                "tailscale_ip": join_packet.get("tailscale_ip", ""),
                 "bio": join_packet.get("bio", ""),
                 "links": join_packet.get("links", ""),
                 "text_channel": "general",
@@ -112,8 +112,9 @@ class TailChatHost:
             
             logger.info(f"User {user_info['display_name']} ({user_id}) joined room.")
             
-            # Register client
-            self.clients[user_id] = (reader, writer, user_info)
+            # Register client with a unique connection ID to support multiple connections from the same user (e.g., local testing)
+            connection_id = str(uuid.uuid4())
+            self.clients[connection_id] = (reader, writer, user_info)
             
             # Send join acknowledgement + message history
             await send_packet(writer, {
@@ -126,7 +127,7 @@ class TailChatHost:
             await self.broadcast({
                 "type": "user_joined",
                 "user": user_info
-            }, exclude_user_id=user_id)
+            }, exclude_conn_id=connection_id)
             
             # 2. Start read loop
             last_msg_time = 0
@@ -193,19 +194,20 @@ class TailChatHost:
                         await self.unicast(recipient_id, packet)
                     else:
                         # Broadcast if no recipient
-                        await self.broadcast(packet, exclude_user_id=user_id)
+                        await self.broadcast(packet, exclude_conn_id=connection_id)
                         
                 elif packet_type in ("voice_state", "speaking_state"):
                     # Broadcast voice state changes (e.g. mute/unmute, speaking glow)
-                    await self.broadcast(packet, exclude_user_id=user_id)
+                    await self.broadcast(packet, exclude_conn_id=connection_id)
                     
         except asyncio.CancelledError:
             pass
         except Exception as e:
             logger.error(f"Error handling chat client {user_id}: {e}")
         finally:
-            if user_id in self.clients:
-                del self.clients[user_id]
+            # Cleanup
+            if connection_id in self.clients:
+                del self.clients[connection_id]
                 logger.info(f"User {user_id} disconnected.")
                 # Broadcast user departure
                 await self.broadcast({
@@ -218,24 +220,26 @@ class TailChatHost:
             except Exception:
                 pass
 
-    async def broadcast(self, packet: dict, exclude_user_id: str = None):
+    async def broadcast(self, packet: dict, exclude_conn_id: str = None):
         """Sends a packet to all connected room clients."""
         logger.debug(f"Broadcasting packet: {packet.get('type')}")
         tasks = []
-        for uid, (_, writer, _) in list(self.clients.items()):
-            if uid != exclude_user_id:
+        for cid, (_, writer, _) in list(self.clients.items()):
+            if cid != exclude_conn_id:
                 tasks.append(send_packet(writer, packet))
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
 
     async def unicast(self, recipient_id: str, packet: dict) -> bool:
-        """Sends a packet to a single connected user."""
-        client = self.clients.get(recipient_id)
-        if client:
-            _, writer, _ = client
-            return await send_packet(writer, packet)
-        logger.warning(f"Unicast failed: Recipient user {recipient_id} not connected.")
-        return False
+        """Sends a packet to all connections of a specific user."""
+        success = False
+        for cid, (_, writer, info) in list(self.clients.items()):
+            if info.get("user_id") == recipient_id:
+                if await send_packet(writer, packet):
+                    success = True
+        if not success:
+            logger.warning(f"Unicast failed: Recipient user {recipient_id} not connected.")
+        return success
 
     # --- File stream handling ---
     async def handle_file_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):

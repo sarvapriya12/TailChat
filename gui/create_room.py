@@ -14,7 +14,7 @@ class CreateRoomDialog(QDialog):
         self.setStyleSheet("""
             QDialog {
                 background-color: #13151c;
-                border: 1px solid rgba(255,255,255,0.09);
+                border: 1px solid rgba(80,86,120,0.09);
                 border-radius: 18px;
             }
         """)
@@ -28,17 +28,18 @@ class CreateRoomDialog(QDialog):
 
         # ── Header ─────────────────────────────────────────────────────
         hdr = QWidget(self)
+        hdr.setAttribute(Qt.WA_StyledBackground, True)
         hdr.setFixedHeight(56)
         hdr.setStyleSheet("""
-            background: rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(80,86,120,0.03);
+            border-bottom: 1px solid rgba(80,86,120,0.07);
         """)
         hdr_lay = QHBoxLayout(hdr)
         hdr_lay.setContentsMargins(24, 0, 20, 0)
 
         title = QLabel("🏠  Host a Room", hdr)
         title.setStyleSheet(
-            "font-size: 16px; font-weight: 700; color: #e8ecf4; background: transparent;"
+            "font-size: 16px; font-weight: 700; color: #F8F8F2; background: transparent;"
         )
         hdr_lay.addWidget(title)
         hdr_lay.addStretch()
@@ -47,7 +48,7 @@ class CreateRoomDialog(QDialog):
         close_btn.setFixedSize(28, 28)
         close_btn.setStyleSheet("""
             QPushButton {
-                background: rgba(255,255,255,0.06); color: #8892a8;
+                background: rgba(80,86,120,0.06); color: #98A0C6;
                 border: none; border-radius: 7px; font-size: 12px;
             }
             QPushButton:hover { background: rgba(248,113,113,0.15); color: #f87171; }
@@ -58,6 +59,7 @@ class CreateRoomDialog(QDialog):
 
         # ── Body ───────────────────────────────────────────────────────
         body = QWidget(self)
+        body.setAttribute(Qt.WA_StyledBackground, True)
         body.setStyleSheet("background: transparent;")
         body_lay = QVBoxLayout(body)
         body_lay.setContentsMargins(24, 20, 24, 8)
@@ -65,7 +67,7 @@ class CreateRoomDialog(QDialog):
 
         # Room name field
         name_lbl = QLabel("Room Name", body)
-        name_lbl.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        name_lbl.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         body_lay.addWidget(name_lbl)
 
         self.name_input = QLineEdit(body)
@@ -75,14 +77,14 @@ class CreateRoomDialog(QDialog):
         self.name_input.setStyleSheet("""
             QLineEdit {
                 background: #1a1d27;
-                border: 1px solid rgba(255,255,255,0.09);
+                border: 1px solid rgba(80,86,120,0.09);
                 border-radius: 11px;
                 padding: 0px 14px;
-                color: #e8ecf4;
+                color: #F8F8F2;
                 font-size: 14px;
             }
             QLineEdit:focus {
-                border: 1px solid rgba(91,138,240,0.65);
+                border: 1px solid rgba(139,92,246,0.65);
                 background: #1e2130;
             }
         """)
@@ -90,7 +92,7 @@ class CreateRoomDialog(QDialog):
 
         # Password field
         pwd_lbl = QLabel("Room Password  (optional — leave blank for public)", body)
-        pwd_lbl.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        pwd_lbl.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         body_lay.addWidget(pwd_lbl)
 
         self.pwd_input = QLineEdit(body)
@@ -100,14 +102,14 @@ class CreateRoomDialog(QDialog):
         self.pwd_input.setStyleSheet("""
             QLineEdit {
                 background: #1a1d27;
-                border: 1px solid rgba(255,255,255,0.09);
+                border: 1px solid rgba(80,86,120,0.09);
                 border-radius: 11px;
                 padding: 0px 14px;
-                color: #e8ecf4;
+                color: #F8F8F2;
                 font-size: 14px;
             }
             QLineEdit:focus {
-                border: 1px solid rgba(91,138,240,0.65);
+                border: 1px solid rgba(139,92,246,0.65);
                 background: #1e2130;
             }
         """)
@@ -118,10 +120,11 @@ class CreateRoomDialog(QDialog):
         # ── Footer buttons ──────────────────────────────────────────────
         sep = QFrame(self)
         sep.setFrameShape(QFrame.HLine)
-        sep.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+        sep.setStyleSheet("background: rgba(80,86,120,0.06); max-height: 1px; border: none;")
         outer.addWidget(sep)
 
         btn_bar = QWidget(self)
+        btn_bar.setAttribute(Qt.WA_StyledBackground, True)
         btn_bar.setStyleSheet("background: transparent;")
         btn_bar.setFixedHeight(60)
         bb = QHBoxLayout(btn_bar)
@@ -134,11 +137,11 @@ class CreateRoomDialog(QDialog):
         cancel_btn.setMinimumWidth(90)
         cancel_btn.setStyleSheet("""
             QPushButton {
-                background: rgba(255,255,255,0.06); color: #8892a8;
-                border: 1px solid rgba(255,255,255,0.09); border-radius: 10px;
+                background: rgba(80,86,120,0.06); color: #98A0C6;
+                border: 1px solid rgba(80,86,120,0.09); border-radius: 10px;
                 font-size: 14px;
             }
-            QPushButton:hover { background: rgba(255,255,255,0.10); color: #e8ecf4; }
+            QPushButton:hover { background: rgba(80,86,120,0.10); color: #F8F8F2; }
         """)
         cancel_btn.clicked.connect(self.reject)
         bb.addWidget(cancel_btn)
@@ -149,13 +152,13 @@ class CreateRoomDialog(QDialog):
         create_btn.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #4f7de8, stop:1 #6a9af6);
-                color: #ffffff; border: none; border-radius: 10px;
+                    stop:0 #8B5CF6, stop:1 #A78BFA);
+                color: #F8F8F2; border: none; border-radius: 10px;
                 font-size: 14px; font-weight: 700;
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #5b8af0, stop:1 #7aabff);
+                    stop:0 #8B5CF6, stop:1 #A78BFA);
             }
             QPushButton:pressed {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,

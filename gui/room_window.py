@@ -145,6 +145,7 @@ class VideoFeedWidget(QWidget):
         bottom_row.setContentsMargins(0, 0, 0, 0)
         
         self.pill = QWidget(self.video_label)
+        self.pill.setAttribute(Qt.WA_StyledBackground, True)
         self.pill.setStyleSheet("background-color: rgba(0,0,0,0.45); border-radius: 16px;")
         self.pill.setFixedHeight(32)
         
@@ -153,7 +154,7 @@ class VideoFeedWidget(QWidget):
         pill_layout.setSpacing(8)
         
         self.name_label = QLabel(name, self.pill)
-        self.name_label.setStyleSheet("color: white; font-weight: bold; font-size: 13px; background: transparent;")
+        self.name_label.setStyleSheet("color: #F8F8F2; font-weight: bold; font-size: 13px; background: transparent;")
         
         self.signal_label = QLabel("<span style='color: #81c995'> ▂▄▆</span>", self.pill)
         self.signal_label.setStyleSheet("background: transparent; font-size: 11px;")
@@ -194,10 +195,17 @@ class VideoFeedWidget(QWidget):
 class RoomPage(QWidget):
     local_frame_signal = Signal(bytes)
     local_speaking_signal = Signal(bool)
+    local_volume_signal = Signal(float)
+    remote_volume_signal = Signal(str, float)
     
     def __init__(self, on_leave, parent=None):
         super().__init__(parent)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet("background-color: #121212;")
+        self.local_frame_signal.connect(self._on_local_frame)
         self.local_speaking_signal.connect(self._update_local_speaking_ui)
+        self.local_volume_signal.connect(self._update_local_volume_ui)
+        self.remote_volume_signal.connect(self._update_remote_volume_ui)
         self.on_leave = on_leave
         self.members_cache = {}
         self.fifo_users = []
@@ -219,7 +227,7 @@ class RoomPage(QWidget):
         # Track open QMessageBox popups: {file_id: QMessageBox}
         self.active_offer_dialogs = {}
         
-        self.setStyleSheet("RoomPage { background-color: #000000; }")
+        self.setStyleSheet("RoomPage { background-color: #121212; }")
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
@@ -230,10 +238,11 @@ class RoomPage(QWidget):
         
         # --- LEFT PANEL: Channels ---
         self.left_panel = QWidget(self)
+        self.left_panel.setAttribute(Qt.WA_StyledBackground, True)
         self.left_panel.setObjectName("leftPanel")
         self.left_panel.setMinimumWidth(200)
         self.left_panel.setMaximumWidth(280)
-        self.left_panel.setStyleSheet("QWidget#leftPanel { background-color: #111111; border-right: 1px solid rgba(255,255,255,0.05); }")
+        self.left_panel.setStyleSheet("QWidget#leftPanel { background-color: #121212; border-right: 1px solid rgba(80,86,120,0.05); }")
         left_layout = QVBoxLayout(self.left_panel)
         left_layout.setContentsMargins(16, 24, 16, 24)
         left_layout.setSpacing(12)
@@ -262,7 +271,7 @@ class RoomPage(QWidget):
         
         self.text_channels_list = QListWidget(self)
         self.text_channels_list.setFixedHeight(150)
-        self.text_channels_list.setStyleSheet("QListWidget { background-color: transparent; border: none; outline: none; } QListWidget::item { padding: 10px 14px; border-radius: 10px; color: #e8eaed; margin-bottom: 2px; } QListWidget::item:hover { background-color: rgba(255,255,255,0.06); } QListWidget::item:selected { background-color: #2b2d31; border: 1px solid #4a4d53; font-weight: bold; }")
+        self.text_channels_list.setStyleSheet("QListWidget { background-color: transparent; border: none; outline: none; } QListWidget::item { padding: 10px 14px; border-radius: 10px; color: #F8F8F2; margin-bottom: 2px; } QListWidget::item:hover { background-color: rgba(80,86,120,0.06); } QListWidget::item:selected { background-color: #2b2d31; border: 1px solid #4a4d53; font-weight: bold; }")
         self.text_channels_list.addItem("💬 general")
         self.text_channels_list.setCurrentRow(0)
         self.text_channels_list.itemClicked.connect(self.on_text_channel_clicked)
@@ -296,7 +305,7 @@ class RoomPage(QWidget):
         self.voice_channels_tree.setHeaderHidden(True)
         self.voice_channels_tree.setIndentation(15)
         self.voice_channels_tree.setAnimated(True)
-        self.voice_channels_tree.setStyleSheet("QTreeWidget { background-color: transparent; border: none; outline: none; } QTreeWidget::item { padding: 8px 10px; border-radius: 8px; color: #e8eaed; margin-bottom: 2px; } QTreeWidget::item:hover { background-color: rgba(255,255,255,0.06); } QTreeWidget::item:selected { background-color: #2b2d31; border: 1px solid #4a4d53; font-weight: bold; }")
+        self.voice_channels_tree.setStyleSheet("QTreeWidget { background-color: transparent; border: none; outline: none; } QTreeWidget::item { padding: 8px 10px; border-radius: 8px; color: #F8F8F2; margin-bottom: 2px; } QTreeWidget::item:hover { background-color: rgba(80,86,120,0.06); } QTreeWidget::item:selected { background-color: #2b2d31; border: 1px solid #4a4d53; font-weight: bold; }")
         
         general_vc = QTreeWidgetItem(self.voice_channels_tree, ["🔊 General VC"])
         self.voice_channels_tree.addTopLevelItem(general_vc)
@@ -309,6 +318,7 @@ class RoomPage(QWidget):
         
         # Voice Controls Box (Discord-like static left panel)
         self.voice_controls_box = QWidget(self)
+        self.voice_controls_box.setAttribute(Qt.WA_StyledBackground, True)
         self.voice_controls_box.setStyleSheet("background-color: #202124; border-radius: 8px;")
         self.voice_controls_box.setVisible(False)
         voice_box_layout = QVBoxLayout(self.voice_controls_box)
@@ -379,10 +389,23 @@ class RoomPage(QWidget):
         profile_layout = QHBoxLayout()
         profile_layout.setContentsMargins(0, 10, 0, 0)
         
-        self.avatar_label = QLabel("?", self)
+        self.avatar_container = QWidget(self)
+        self.avatar_container.setFixedSize(40, 40)
+        self.avatar_container.setAttribute(Qt.WA_StyledBackground, True)
+        self.avatar_container.setStyleSheet("background-color: transparent;")
+        
+        self.avatar_label = QLabel("?", self.avatar_container)
         self.avatar_label.setFixedSize(36, 36)
+        self.avatar_label.move(2, 2)
         self.avatar_label.setAlignment(Qt.AlignCenter)
-        self.avatar_label.setStyleSheet("background-color: rgba(138,180,248,0.15); border-radius: 18px; font-weight: bold; font-size: 14px;")
+        self.avatar_label.setStyleSheet("background-color: rgba(139,92,246,0.15); border-radius: 18px; font-weight: bold; font-size: 14px;")
+        
+        self.avatar_glow = QFrame(self.avatar_container)
+        self.avatar_glow.setFixedSize(40, 40)
+        self.avatar_glow.move(0, 0)
+        self.avatar_glow.setStyleSheet("border-radius: 20px; border: none; background: transparent;")
+        
+        profile_layout.addWidget(self.avatar_container)
         
         self.user_name_label = QLabel("Guest", self)
         self.user_name_label.setStyleSheet("font-weight: bold; font-size: 13px;")
@@ -410,7 +433,7 @@ class RoomPage(QWidget):
         self.btn_home.setToolTip("Lobby")
         self.btn_home.clicked.connect(self.go_to_lobby)
         
-        profile_layout.addWidget(self.avatar_label)
+        # `avatar_container` is already added above, so we just add `user_name_label`
         profile_layout.addWidget(self.user_name_label)
         profile_layout.addStretch()
         profile_layout.addWidget(self.ping_label)
@@ -430,6 +453,7 @@ class RoomPage(QWidget):
         
         # --- CENTER PANEL: Chat and Video ---
         self.center_panel = QWidget(self)
+        self.center_panel.setAttribute(Qt.WA_StyledBackground, True)
         self.center_panel.setObjectName("centerPanel")
         center_layout = QVBoxLayout(self.center_panel)
         center_layout.setContentsMargins(0, 0, 0, 0)
@@ -437,7 +461,7 @@ class RoomPage(QWidget):
         
         # Header Info
         self.header_frame = QFrame(self.center_panel)
-        self.header_frame.setStyleSheet("background-color: #111111; border-bottom: 1px solid rgba(255,255,255,0.1);") 
+        self.header_frame.setStyleSheet("background-color: #121212; border-bottom: 1px solid rgba(80,86,120,0.1);")
         
         header_layout = QHBoxLayout(self.header_frame)
         header_layout.setContentsMargins(16, 12, 16, 12)
@@ -450,7 +474,7 @@ class RoomPage(QWidget):
         self.btn_toggle_right.clicked.connect(self.restore_right_panel)
         
         self.room_title = QLabel("💬 General", self.header_frame)
-        self.room_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #e8eaed;")
+        self.room_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #F8F8F2;")
         
         self.owner_label = QLabel("OWNER : Unknown", self.header_frame)
         self.owner_label.setStyleSheet("font-size: 11px; font-weight: 700; color: #9aa0a6; letter-spacing: 1px;")
@@ -466,7 +490,7 @@ class RoomPage(QWidget):
         self.btn_chat_toggle.setIconSize(QSize(24, 24))
         self.btn_chat_toggle.setObjectName("secondaryButton")
         self.btn_chat_toggle.setFixedSize(40, 40)
-        self.btn_chat_toggle.setStyleSheet("border-radius: 20px; background-color: rgba(138,180,248,0.25); border: 1px solid rgba(138,180,248,0.5);")
+        self.btn_chat_toggle.setStyleSheet("border-radius: 20px; background-color: rgba(139,92,246,0.25); border: 1px solid rgba(139,92,246,0.5);")
         self.btn_chat_toggle.setToolTip("Toggle Chat")
         self.btn_chat_toggle.clicked.connect(self.toggle_chat)
         
@@ -476,7 +500,7 @@ class RoomPage(QWidget):
         self.btn_roster.setIconSize(QSize(24, 24))
         self.btn_roster.setObjectName("secondaryButton")
         self.btn_roster.setFixedSize(40, 40)
-        self.btn_roster.setStyleSheet("border-radius: 20px; background-color: rgba(138,180,248,0.10); border: 1px solid rgba(138,180,248,0.25);")
+        self.btn_roster.setStyleSheet("border-radius: 20px; background-color: rgba(139,92,246,0.10); border: 1px solid rgba(139,92,246,0.25);")
         self.btn_roster.setToolTip("Active Users")
         
         from PySide6.QtWidgets import QMenu, QWidgetAction
@@ -510,6 +534,7 @@ class RoomPage(QWidget):
         
         # Left: Video Grid (hidden by default, shown when camera is on)
         self.video_area = QWidget(self)
+        self.video_area.setAttribute(Qt.WA_StyledBackground, True)
         self.video_layout = QGridLayout(self.video_area)
         self.video_layout.setContentsMargins(20, 20, 20, 20)
         self.video_layout.setSpacing(15)
@@ -518,6 +543,7 @@ class RoomPage(QWidget):
         
         # Right: Chat Area (always visible by default)
         self.chat_container = QWidget(self)
+        self.chat_container.setAttribute(Qt.WA_StyledBackground, True)
         self.chat_container.setStyleSheet("background-color: transparent; border: none;")
         chat_container_layout = QVBoxLayout(self.chat_container)
         chat_container_layout.setContentsMargins(0, 0, 0, 0)
@@ -527,6 +553,7 @@ class RoomPage(QWidget):
         self.chat_scroll.setStyleSheet("background-color: #292a2d; border-radius: 8px; border: none;")
         
         self.chat_content_widget = QWidget()
+        self.chat_content_widget.setAttribute(Qt.WA_StyledBackground, True)
         self.chat_content_widget.setStyleSheet("background: transparent;")
         self.chat_layout = QVBoxLayout(self.chat_content_widget)
         self.chat_layout.setAlignment(Qt.AlignTop)
@@ -544,7 +571,7 @@ class RoomPage(QWidget):
         self.attach_btn.setObjectName("secondaryButton")
         self.attach_btn.setFixedSize(60, 36)
         self.attach_btn.setStyleSheet("""
-            QPushButton { font-size: 24px; font-weight: bold; border-radius: 18px; background-color: #292a2d; border: none; color: white; }
+            QPushButton { font-size: 24px; font-weight: bold; border-radius: 18px; background-color: #292a2d; border: none; color: #F8F8F2; }
             QPushButton:hover { background-color: #3c4043; }
         """)
         self.attach_btn.clicked.connect(self.send_image_in_chat)
@@ -553,8 +580,8 @@ class RoomPage(QWidget):
         self.chat_input.setFixedHeight(36)
         self.chat_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.chat_input.setStyleSheet("""
-            QLineEdit { background-color: #292a2d; color: #e8eaed; border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; padding: 0px 16px; font-weight: 600; }
-            QLineEdit:focus { background-color: #3c4043; border: 1px solid white; }
+            QLineEdit { background-color: #292a2d; color: #F8F8F2; border: 1px solid rgba(80,86,120,0.7); border-radius: 18px; padding: 0px 16px; font-weight: 600; }
+            QLineEdit:focus { background-color: #3c4043; border: 1px solid rgba(80,86,120,0.9); }
         """)
         self.chat_input.setPlaceholderText("Type a message...")
         self.chat_input.returnPressed.connect(self.send_message)
@@ -576,8 +603,9 @@ class RoomPage(QWidget):
         
         # --- RIGHT PANEL: File Sharing & Actions ---
         self.right_panel = QWidget(self)
+        self.right_panel.setAttribute(Qt.WA_StyledBackground, True)
         self.right_panel.setObjectName("rightPanel")
-        self.right_panel.setStyleSheet("QWidget#rightPanel { background-color: #111111; border-left: 1px solid rgba(255,255,255,0.1); }")
+        self.right_panel.setStyleSheet("QWidget#rightPanel { background-color: #121212; border-left: 1px solid rgba(80,86,120,0.1); }")
         right_layout = QVBoxLayout(self.right_panel)
         right_layout.setContentsMargins(24, 24, 24, 24)
         
@@ -625,16 +653,29 @@ class RoomPage(QWidget):
 
     @Slot(bool)
     def _update_local_speaking_ui(self, is_speaking):
-        if is_speaking:
-            self.avatar_label.setStyleSheet("background-color: rgba(138,180,248,0.15); border-radius: 18px; font-weight: bold; font-size: 14px; border: 2px solid white;")
-        else:
-            self.avatar_label.setStyleSheet("background-color: rgba(138,180,248,0.15); border-radius: 18px; font-weight: bold; font-size: 14px; border: none;")
+        if not is_speaking:
+            self.avatar_glow.setStyleSheet("border-radius: 20px; border: none; background: transparent;")
+
+    @Slot(float)
+    def _update_local_volume_ui(self, rms):
+        opacity = min(1.0, max(0.2, rms / 3000.0))
+        color = f"rgba(255, 255, 255, {opacity})"
+        self.avatar_glow.setStyleSheet(f"border-radius: 20px; border: 2px solid {color}; box-shadow: 0 0 10px {color}; background: transparent;")
+
+    @Slot(str, float)
+    def _update_remote_volume_ui(self, user_id, rms):
+        opacity = min(1.0, max(0.2, rms / 3000.0))
+        color = f"rgba(255, 255, 255, {opacity})"
+        style = f"border-radius: 16px; border: 2px solid {color}; box-shadow: 0 0 10px {color}; background: transparent;"
+        
+        glow = self.roster_list.findChild(QFrame, f"glow_{user_id}")
+        if glow:
+            glow.setStyleSheet(style)
 
     def open_settings(self):
-        from gui.settings_window import SettingsDialog
-        dlg = SettingsDialog(self)
-        if dlg.exec():
-            self.update_profile()
+        main_win = self.window()
+        if hasattr(main_win, 'open_settings'):
+            main_win.open_settings()
             
     def on_splitter_moved(self, pos, index):
         sizes = self.central_splitter.sizes()
@@ -802,8 +843,8 @@ class RoomPage(QWidget):
         self.reconnect_signals()
 
         self.fifo_users = []
-        if session.user_id not in self.fifo_users:
-            self.fifo_users.append(session.user_id)
+        if session.net_id not in self.fifo_users:
+            self.fifo_users.append(session.net_id)
         # Reset member cache — stale members from a previous room must not bleed in
         self.members_cache = {}
         self._update_owner_label()
@@ -874,7 +915,7 @@ class RoomPage(QWidget):
         else:
             self.avatar_label.setPixmap(QPixmap())
             self.avatar_label.setText(session.display_name[0].upper() if session.display_name else "?")
-            self.avatar_label.setStyleSheet("background-color: rgba(138,180,248,0.15); border-radius: 18px; font-weight: bold; font-size: 14px;")
+            self.avatar_label.setStyleSheet("background-color: rgba(139,92,246,0.15); border-radius: 18px; font-weight: bold; font-size: 14px;")
         
         # Clear transfer progress bar layout
         while self.transfers_layout.count():
@@ -932,15 +973,29 @@ class RoomPage(QWidget):
 
     def add_roster_item(self, user_id, name, is_muted, is_speaking=False, avatar_url=None):
         widget = QWidget()
+        widget.setAttribute(Qt.WA_StyledBackground, True)
         layout = QHBoxLayout(widget)
         layout.setContentsMargins(5, 5, 5, 5)
         
-        # Avatar
-        avatar = QLabel(widget)
-        avatar.setFixedSize(28, 28)
+        # Avatar Container
+        avatar_container = QWidget(widget)
+        avatar_container.setFixedSize(32, 32)
+        avatar_container.setAttribute(Qt.WA_StyledBackground, True)
+        avatar_container.setStyleSheet("background: transparent;")
         
-        # Liquid glass green glow if speaking
-        border_style = "border: 2px solid #4CAF50; box-shadow: 0 0 10px #4CAF50;" if is_speaking else "border: 1px solid rgba(255, 255, 255, 0.2);"
+        avatar = QLabel(avatar_container)
+        avatar.setFixedSize(28, 28)
+        avatar.move(2, 2)
+        
+        # Liquid glass green glow if speaking (or white as requested)
+        border_style = "border: 2px solid white; box-shadow: 0 0 10px white;" if is_speaking else "border: 1px solid rgba(80, 86, 120, 0.2);"
+        avatar_glow = QFrame(avatar_container)
+        avatar_glow.setObjectName(f"glow_{user_id}")
+        avatar_glow.setFixedSize(32, 32)
+        avatar_glow.move(0, 0)
+        avatar_glow.setStyleSheet(f"border-radius: 16px; background: transparent; {border_style}")
+        
+        layout.addWidget(avatar_container)
         
         has_avatar = False
         if avatar_url and avatar_url.startswith("data:image"):
@@ -964,7 +1019,7 @@ class RoomPage(QWidget):
                 painter.end()
                 
                 avatar.setPixmap(target)
-                avatar.setStyleSheet(f"border-radius: 14px; qproperty-alignment: AlignCenter; {border_style}")
+                avatar.setStyleSheet(f"border-radius: 14px; qproperty-alignment: AlignCenter; background: transparent;")
                 has_avatar = True
             except Exception:
                 pass
@@ -972,18 +1027,17 @@ class RoomPage(QWidget):
         if not has_avatar:
             avatar.setStyleSheet(f"""
                 border-radius: 14px;
-                background-color: #8ab4f8;
-                color: white;
+                background-color: rgba(139,92,246,0.15);
+                color: #F8F8F2;
                 font-weight: bold;
                 qproperty-alignment: AlignCenter;
-                {border_style}
             """)
             avatar.setText(name[0].upper() if name else "?")
         
         # Name
-        self_prefix = " (You)" if user_id == session.user_id else ""
+        self_prefix = " (You)" if user_id == session.net_id else ""
         name_lbl = QLabel(name + self_prefix, widget)
-        name_lbl.setStyleSheet("color: #e8eaed; font-size: 13px;")
+        name_lbl.setStyleSheet("color: #F8F8F2; font-size: 13px;")
         
         # Mute icon
         mute_lbl = QLabel("❌" if is_muted else "🎤", widget)
@@ -1046,10 +1100,10 @@ class RoomPage(QWidget):
         self.chat_container.setVisible(not is_visible)
         
         if not is_visible:
-            self.btn_chat_toggle.setStyleSheet("border-radius: 20px; background-color: rgba(138,180,248,0.25); border: 1px solid rgba(138,180,248,0.5);")
+            self.btn_chat_toggle.setStyleSheet("border-radius: 20px; background-color: rgba(139,92,246,0.25); border: 1px solid rgba(139,92,246,0.5);")
             self.center_content_splitter.setSizes([700, 300])
         else:
-            self.btn_chat_toggle.setStyleSheet("border-radius: 20px; background-color: rgba(138,180,248,0.10); border: 1px solid rgba(138,180,248,0.25);")
+            self.btn_chat_toggle.setStyleSheet("border-radius: 20px; background-color: rgba(139,92,246,0.10); border: 1px solid rgba(139,92,246,0.25);")
         
     def toggle_camera(self):
         if not room_service.video_sender: return
@@ -1064,12 +1118,12 @@ class RoomPage(QWidget):
         if self.is_camera_on:
             self.btn_camera_toggle.setIcon(QIcon(os.path.join(self.icon_dir, "video.png")))
             self.btn_camera_toggle.setObjectName("iconButton") # Blue transparent state for camera on
-            self.btn_camera_toggle.setStyleSheet("background-color: rgba(138,180,248,0.15); border-radius: 20px;")
+            self.btn_camera_toggle.setStyleSheet("background-color: rgba(139,92,246,0.15); border-radius: 20px;")
             self.btn_camera_toggle.setToolTip("Camera Off")
             self.video_area.setVisible(True)
             
             # Eagerly show the local video feed with a loading spinner
-            uid = session.user_id
+            uid = session.net_id
             if uid not in self.video_labels:
                 name = "You"
                 feed_widget = VideoFeedWidget(name=name, parent=self)
@@ -1081,8 +1135,8 @@ class RoomPage(QWidget):
             self.btn_camera_toggle.setObjectName("controlButton")
             self.btn_camera_toggle.setToolTip("Camera On")
             # Remove our own local frame if camera turned off
-            if session.user_id in self.video_labels:
-                lbl = self.video_labels.pop(session.user_id)
+            if session.net_id in self.video_labels:
+                lbl = self.video_labels.pop(session.net_id)
                 self.video_layout.removeWidget(lbl)
                 lbl.deleteLater()
                 self._reflow_video_grid()
@@ -1097,7 +1151,7 @@ class RoomPage(QWidget):
 
     @Slot(bytes)
     def _on_local_frame(self, jpeg_bytes):
-        self.on_video_frame(session.user_id, jpeg_bytes)
+        self.on_video_frame(session.net_id, jpeg_bytes)
         
     @Slot(str, bytes)
     def on_video_frame(self, user_id, jpeg_bytes):
@@ -1108,7 +1162,7 @@ class RoomPage(QWidget):
                 return
             
             if user_id not in self.video_labels:
-                name = self.members_cache.get(user_id, {}).get("name", "Unknown") if user_id != session.user_id else "You"
+                name = self.members_cache.get(user_id, {}).get("name", "Unknown") if user_id != session.net_id else "You"
                 feed_widget = VideoFeedWidget(name=name, parent=self)
                 self.video_labels[user_id] = feed_widget
                 
@@ -1236,6 +1290,10 @@ class RoomPage(QWidget):
             def handle_speaking_changed(is_speaking):
                 room_service.run_coro(room_service.client_node.send_speaking_state(is_speaking))
                 self.local_speaking_signal.emit(is_speaking)
+            def handle_volume_changed(rms):
+                self.local_volume_signal.emit(rms)
+            def handle_remote_volume_changed(user_id, rms):
+                self.remote_volume_signal.emit(user_id, rms)
             from voice.sender import VoiceSender
             from voice.receiver import VoiceReceiver
             from video.video_sender import VideoSender
@@ -1244,9 +1302,9 @@ class RoomPage(QWidget):
             room = room_service.current_room
             if room:
                 # Start voice
-                room_service.voice_sender = VoiceSender(room["host_ip"], room["voice_port"], on_speaking_changed=handle_speaking_changed)
+                room_service.voice_sender = VoiceSender(room["host_ip"], room["voice_port"], on_speaking_changed=handle_speaking_changed, on_volume_changed=handle_volume_changed)
                 room_service.voice_sender.start()
-                room_service.voice_receiver = VoiceReceiver(room["host_ip"], room["voice_port"], room_service.mixer)
+                room_service.voice_receiver = VoiceReceiver(room["host_ip"], room["voice_port"], room_service.mixer, on_volume_changed=handle_remote_volume_changed)
                 room_service.voice_receiver.start()
                 
                 # Start video
@@ -1355,11 +1413,12 @@ class RoomPage(QWidget):
         time_str = html.escape(msg.get("timestamp", ""))
         
         bubble = QWidget()
+        bubble.setAttribute(Qt.WA_StyledBackground, True)
         bubble_layout = QHBoxLayout(bubble)
         bubble_layout.setContentsMargins(12, 4, 12, 4)
         bubble_layout.setSpacing(12)
         
-        is_own = msg.get("sender_id") == session.user_id or msg.get("sender_name") == session.display_name
+        is_own = msg.get("sender_id") == session.net_id or msg.get("sender_name") == session.display_name
         
         if msg.get("is_system"):
             text_color = "#ea4335" if msg.get("is_leave") else "#81c995"
@@ -1372,22 +1431,23 @@ class RoomPage(QWidget):
             pfp_lbl = QLabel(sender[0].upper() if sender else "?", self)
             pfp_lbl.setFixedSize(40, 40)
             pfp_lbl.setAlignment(Qt.AlignCenter)
-            pfp_lbl.setStyleSheet("background-color: rgba(138,180,248,0.15); border-radius: 20px; font-weight: bold; font-size: 16px; color: #e8eaed;")
+            pfp_lbl.setStyleSheet("background-color: rgba(139,92,246,0.15); border-radius: 20px; font-weight: bold; font-size: 16px; color: #F8F8F2;")
             bubble_layout.addWidget(pfp_lbl, 0, Qt.AlignTop)
             
             right_widget = QWidget()
+            right_widget.setAttribute(Qt.WA_StyledBackground, True)
             right_layout = QVBoxLayout(right_widget)
             right_layout.setContentsMargins(0, 0, 0, 0)
             right_layout.setSpacing(2)
-            
-            name_time_html = f"<span style='color: #e8eaed; font-weight: 800; font-size: 14px;'>{sender}</span> &nbsp;&nbsp;<span style='color: #5f6368; font-weight: 600; font-size: 10px;'>{time_str}</span>"
+
+            name_time_html = f"<span style='color: #F8F8F2; font-weight: 800; font-size: 14px;'>{sender}</span> &nbsp;&nbsp;<span style='color: #98A0C6; font-weight: 600; font-size: 10px;'>{time_str}</span>"
             name_time_lbl = QLabel(name_time_html)
             
             if content.startswith("[IMAGE:") and content.endswith("]"):
                 b64_data = content[7:-1]
                 content = f"<br><img src='data:image/jpeg;base64,{b64_data}' style='max-width:300px; max-height:300px;'><br>"
             
-            msg_lbl = QLabel(f"<span style='color: #e8eaed; font-size: 13px;'>{content}</span>")
+            msg_lbl = QLabel(f"<span style='color: #F8F8F2; font-size: 13px;'>{content}</span>")
             msg_lbl.setWordWrap(True)
             msg_lbl.setStyleSheet("background: transparent;")
             
@@ -1396,7 +1456,7 @@ class RoomPage(QWidget):
             bubble_layout.addWidget(right_widget)
             
         # Hover effect
-        bubble.setStyleSheet("QWidget:hover { background-color: rgba(255,255,255,0.03); }")
+        bubble.setStyleSheet("QWidget:hover { background-color: rgba(80,86,120,0.03); }")
             
         self.chat_layout.addWidget(bubble)
         
@@ -1484,7 +1544,7 @@ class RoomPage(QWidget):
         room_service.run_coro(room_service.client_node.send_voice_state(muted))
         
         # Update local roster state
-        self.update_roster_mute(session.user_id, muted)
+        self.update_roster_mute(session.net_id, muted)
 
     @Slot(dict)
     def on_voice_state_changed(self, packet):
@@ -1519,7 +1579,7 @@ class RoomPage(QWidget):
         if self.fifo_users:
             owner_id = self.fifo_users[0]
             # Since this could be us, check session if not in cache
-            if owner_id == session.user_id:
+            if owner_id == session.net_id:
                 owner_name = session.display_name
             else:
                 owner_info = self.members_cache.get(owner_id, {})
@@ -1537,7 +1597,7 @@ class RoomPage(QWidget):
         from gui.profile_window import ProfileDialog
         
         # Determine if viewing self or another user
-        is_self = (user_id == session.user_id)
+        is_self = (user_id == session.net_id)
         if is_self:
             user_info = {
                 "display_name": session.display_name,
@@ -1574,7 +1634,7 @@ class RoomPage(QWidget):
             return
             
         uid = current_item.data(Qt.UserRole)
-        if uid == session.user_id:
+        if uid == session.net_id:
             InfoBar.warning(title="Selection Error", content="You cannot send a file to yourself.", orient=Qt.Horizontal, isClosable=True, position=InfoBarPosition.TOP_RIGHT, duration=3000, parent=self)
             return
             
@@ -1826,12 +1886,13 @@ class RoomPage(QWidget):
     # --- UI Helpers for progress bar ---
     def add_active_transfer(self, file_id, filename, initial_status):
         widget = QWidget(self)
+        widget.setAttribute(Qt.WA_StyledBackground, True)
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(2)
         
         name_lbl = QLabel(f"📄 {filename}", widget)
-        name_lbl.setStyleSheet("font-weight: 600; font-size: 11px; color: #e8eaed;")
+        name_lbl.setStyleSheet("font-weight: 600; font-size: 11px; color: #F8F8F2;")
         
         bar = QProgressBar(widget)
         bar.setFixedHeight(12)

@@ -11,6 +11,8 @@ from gui.styles import DARK_STYLESHEET
 from gui.login_window import LoadingPage
 from gui.home_window import HomePage
 from gui.room_window import RoomPage
+from gui.about_page import AboutPage
+from gui.settings_page import SettingsPage
 from auth.session import session
 
 _ROOT = Path(__file__).parent.parent.resolve()
@@ -48,6 +50,7 @@ class SidebarWidget(QWidget):
     def __init__(self, parent, on_navigate, on_install_tailscale, on_open_settings):
         super().__init__(parent)
         self.setObjectName("leftPanel")
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.setFixedWidth(220)
         self.on_navigate = on_navigate
         self.on_install_tailscale = on_install_tailscale
@@ -61,7 +64,7 @@ class SidebarWidget(QWidget):
         brand = QLabel("TailChat", self)
         brand.setAlignment(Qt.AlignCenter)
         brand.setStyleSheet(
-            "font-size: 18px; font-weight: 800; color: #5b8af0; "
+            "font-size: 18px; font-weight: 800; color: #8B5CF6; "
             "letter-spacing: -0.3px; margin-bottom: 20px; background: transparent;"
         )
         lay.addWidget(brand)
@@ -71,8 +74,8 @@ class SidebarWidget(QWidget):
         self.avatar_lbl.setFixedSize(80, 80)
         self.avatar_lbl.setAlignment(Qt.AlignCenter)
         self.avatar_lbl.setStyleSheet(
-            "background-color: rgba(91,138,240,0.15); border-radius: 40px; "
-            "font-weight: 700; font-size: 30px; color: #5b8af0;"
+            "background-color: rgba(139,92,246,0.15); border-radius: 40px; "
+            "font-weight: 700; font-size: 30px; color: #8B5CF6;"
         )
         self.avatar_lbl.setCursor(Qt.PointingHandCursor)
         self.avatar_lbl.mousePressEvent = lambda _: self.on_open_settings()
@@ -89,7 +92,7 @@ class SidebarWidget(QWidget):
         self.name_lbl.setAlignment(Qt.AlignCenter)
         self.name_lbl.setWordWrap(True)
         self.name_lbl.setStyleSheet(
-            "font-size: 15px; font-weight: 700; color: #e8ecf4; background: transparent;"
+            "font-size: 15px; font-weight: 700; color: #F8F8F2; background: transparent;"
         )
         lay.addWidget(self.name_lbl)
 
@@ -98,7 +101,7 @@ class SidebarWidget(QWidget):
         self.email_lbl.setAlignment(Qt.AlignCenter)
         self.email_lbl.setWordWrap(True)
         self.email_lbl.setStyleSheet(
-            "font-size: 11px; color: #4a5168; background: transparent; margin-bottom: 4px;"
+            "font-size: 11px; color: #98A0C6; background: transparent; margin-bottom: 4px;"
         )
         lay.addWidget(self.email_lbl)
 
@@ -110,7 +113,7 @@ class SidebarWidget(QWidget):
         dot.setStyleSheet("color: #4ade80; font-size: 9px; background: transparent;")
         status_row.addWidget(dot)
         status_lbl = QLabel("Online", self)
-        status_lbl.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        status_lbl.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         status_row.addWidget(status_lbl)
         lay.addLayout(status_row)
         lay.addSpacing(16)
@@ -118,7 +121,7 @@ class SidebarWidget(QWidget):
         # ── Divider ────────────────────────────────────────────────────
         div = QFrame(self)
         div.setFrameShape(QFrame.HLine)
-        div.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+        div.setStyleSheet("background: rgba(80,86,120,0.08); max-height: 1px; border: none;")
         lay.addWidget(div)
         lay.addSpacing(8)
 
@@ -126,7 +129,7 @@ class SidebarWidget(QWidget):
         nav_lbl = QLabel("NAVIGATE", self)
         nav_lbl.setStyleSheet(
             "font-size: 10px; font-weight: 700; letter-spacing: 1.5px; "
-            "color: #3a3f52; background: transparent; margin-top: 4px;"
+            "color: #98A0C6; background: transparent; margin-top: 4px;"
         )
         lay.addWidget(nav_lbl)
         lay.addSpacing(4)
@@ -137,6 +140,9 @@ class SidebarWidget(QWidget):
 
         self.btn_settings = self._nav_btn("⚙  Settings & Profile", self.on_open_settings)
         lay.addWidget(self.btn_settings)
+
+        self.btn_about = self._nav_btn("ℹ  About", self.on_open_about)
+        lay.addWidget(self.btn_about)
 
         lay.addStretch()
 
@@ -162,7 +168,7 @@ class SidebarWidget(QWidget):
         btn.setStyleSheet("""
             QPushButton#transparentButton {
                 background: transparent;
-                color: #8892a8;
+                color: #98A0C6;
                 border: none;
                 text-align: left;
                 padding: 0px 12px;
@@ -170,16 +176,19 @@ class SidebarWidget(QWidget):
                 font-size: 14px;
             }
             QPushButton#transparentButton:hover {
-                background: rgba(255,255,255,0.06);
-                color: #e8ecf4;
+                background: rgba(80,86,120,0.08);
+                color: #F8F8F2;
             }
             QPushButton#transparentButton:pressed {
-                background: rgba(91,138,240,0.14);
-                color: #5b8af0;
+                background: rgba(139,92,246,0.14);
+                color: #8B5CF6;
             }
         """)
         btn.clicked.connect(slot)
         return btn
+
+    def on_open_about(self):
+        self.on_navigate(3)
 
     def _sign_out(self):
         from PySide6.QtWidgets import QMessageBox
@@ -210,8 +219,8 @@ class SidebarWidget(QWidget):
         self.avatar_lbl.setPixmap(QPixmap())
         self.avatar_lbl.setText((name or "?")[0].upper())
         self.avatar_lbl.setStyleSheet(
-            "background-color: rgba(91,138,240,0.18); border-radius: 40px; "
-            "font-weight: 700; font-size: 30px; color: #5b8af0;"
+            "background-color: rgba(139,92,246,0.18); border-radius: 40px; "
+            "font-weight: 700; font-size: 30px; color: #8B5CF6;"
         )
         self.avatar_lbl.setToolTip("Click to edit profile")
 
@@ -224,16 +233,18 @@ class TailChatMainWindow(FramelessWindow):
         self.setMinimumSize(900, 560)
 
         setTheme(Theme.DARK)
-        self.setStyleSheet(DARK_STYLESHEET)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setObjectName("mainWindow")
+        self.setStyleSheet(DARK_STYLESHEET + "\n#mainWindow { background-color: #121212; }")
 
         # ── Titlebar ───────────────────────────────────────────────────
         if hasattr(self, "titleBar"):
             from PySide6.QtGui import QColor
             self.titleBar.setAttribute(Qt.WA_StyledBackground, True)
             self.titleBar.setStyleSheet(
-                "TitleBar { background-color: #0d0f14; "
-                "border-bottom: 1px solid rgba(255,255,255,0.04); } "
-                "QLabel { color: #e8ecf4; font-size: 13px; font-weight: 600; }"
+                "TitleBar { background-color: #121212; "
+                "border-bottom: 1px solid rgba(80,86,120,0.06); } "
+                "QLabel { color: #F8F8F2; font-size: 13px; font-weight: 600; }"
             )
             for btn in [
                 getattr(self.titleBar, "minBtn", None),
@@ -241,12 +252,12 @@ class TailChatMainWindow(FramelessWindow):
                 getattr(self.titleBar, "closeBtn", None),
             ]:
                 if btn:
-                    btn.setNormalColor(Qt.white)
+                    btn.setNormalColor(QColor('#F8F8F2'))
                     if btn is not getattr(self.titleBar, "closeBtn", None):
-                        btn.setHoverColor(Qt.white)
-                        btn.setPressedColor(Qt.white)
-                        btn.setHoverBackgroundColor(QColor(255, 255, 255, 20))
-                        btn.setPressedBackgroundColor(QColor(255, 255, 255, 40))
+                        btn.setHoverColor(QColor('#F8F8F2'))
+                        btn.setPressedColor(QColor('#F8F8F2'))
+                        btn.setHoverBackgroundColor(QColor(88, 101, 242, 20))
+                        btn.setPressedBackgroundColor(QColor(88, 101, 242, 40))
 
         # ── App icon ───────────────────────────────────────────────────
         logo_path = _ROOT / "assets" / "images" / "app_logo.png"
@@ -266,21 +277,28 @@ class TailChatMainWindow(FramelessWindow):
         # Thin separator between sidebar and content
         sep = QFrame(self)
         sep.setFrameShape(QFrame.VLine)
-        sep.setStyleSheet("background: rgba(255,255,255,0.05); max-width: 1px; border: none;")
+        sep.setStyleSheet("background: rgba(80,86,120,0.05); max-width: 1px; border: none;")
         root.addWidget(sep)
 
         self.stack = QStackedWidget(self)
+        self.stack.setAttribute(Qt.WA_StyledBackground, True)
+        self.stack.setStyleSheet("background-color: transparent;")
         root.addWidget(self.stack, stretch=1)
 
         self.loading_page = LoadingPage(self.on_login_success, self)
         self.home_page    = HomePage(self.on_logout, self.on_enter_room, self)
         self.room_page    = RoomPage(self.on_leave_room, self)
+        self.about_page   = AboutPage(self)
+        self.settings_page= SettingsPage(self.close_settings, self)
 
         self.stack.addWidget(self.loading_page)  # 0
         self.stack.addWidget(self.home_page)     # 1
         self.stack.addWidget(self.room_page)     # 2
+        self.stack.addWidget(self.about_page)    # 3
+        self.stack.addWidget(self.settings_page) # 4
 
         self.navigate_to(0)
+        self._previous_index = 1
 
     # ── Navigation ─────────────────────────────────────────────────────────────
 
@@ -315,6 +333,7 @@ class TailChatMainWindow(FramelessWindow):
         installer = _ROOT / "resources" / "tailscale-setup.exe"
         try:
             if installer.exists():
+                import os
                 os.startfile(str(installer))
             else:
                 from PySide6.QtWidgets import QMessageBox
@@ -327,10 +346,16 @@ class TailChatMainWindow(FramelessWindow):
             from PySide6.QtWidgets import QMessageBox
             QMessageBox.critical(self, "Error", f"Failed to run installer:\n{e}")
 
-    # ── Settings dialog ─────────────────────────────────────────────────────────
+    # ── Settings ──────────────────────────────────────────────────────────
 
     def open_settings(self):
-        from gui.settings_window import SettingsDialog
-        dlg = SettingsDialog(self)
-        dlg.exec()
+        self._previous_index = self.stack.currentIndex()
+        if self._previous_index not in (1, 2):
+            self._previous_index = 1
+        self.navigate_to(4)
+        
+    def close_settings(self):
         self.sidebar.update_profile()
+        if self._previous_index == 2:
+            self.room_page.update_profile()
+        self.navigate_to(self._previous_index)

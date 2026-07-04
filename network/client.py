@@ -46,7 +46,7 @@ class TailChatClient:
             # Send join packet
             join_packet = {
                 "type": "join",
-                "user_id": session.user_id,
+                "user_id": session.net_id,
                 "display_name": session.display_name,
                 "email": session.email,
                 "avatar_url": session.avatar_url,
@@ -88,7 +88,7 @@ class TailChatClient:
         # Send leave packet (best effort)
         try:
             if self.writer:
-                await send_packet(self.writer, {"type": "leave", "user_id": session.user_id})
+                await send_packet(self.writer, {"type": "leave", "user_id": session.net_id})
                 self.writer.close()
                 await self.writer.wait_closed()
         except Exception:
@@ -141,7 +141,7 @@ class TailChatClient:
             "file_name": file_name,
             "file_size": file_size,
             "sender_name": session.display_name,
-            "sender_id": session.user_id,
+            "sender_id": session.net_id,
             "recipient_id": recipient_id
         }
         await send_packet(self.writer, packet)
@@ -185,7 +185,7 @@ class TailChatClient:
             return
         packet = {
             "type": "voice_state",
-            "user_id": session.user_id,
+            "user_id": session.net_id,
             "muted": muted
         }
         await send_packet(self.writer, packet)
@@ -196,7 +196,7 @@ class TailChatClient:
             return
         packet = {
             "type": "speaking_state",
-            "user_id": session.user_id,
+            "user_id": session.net_id,
             "is_speaking": is_speaking
         }
         await send_packet(self.writer, packet)

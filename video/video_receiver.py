@@ -48,7 +48,7 @@ class VideoReceiver:
             return False
 
     def keepalive_loop(self):
-        user_id_bytes = session.user_id.encode("utf-8")
+        user_id_bytes = session.net_id.encode("utf-8")
         reg_packet = bytes([len(user_id_bytes)]) + user_id_bytes
         
         while self.is_running:

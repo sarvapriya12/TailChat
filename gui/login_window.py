@@ -3,8 +3,7 @@ import sys
 import time
 from pathlib import Path
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-                                QPushButton, QMessageBox, QCheckBox,
-                                QGraphicsDropShadowEffect)
+                                QPushButton, QMessageBox, QCheckBox, QGraphicsDropShadowEffect)
 from PySide6.QtCore import QThread, Signal, Slot, Qt, QTimer, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QPixmap, QColor, QPainter, QPainterPath, QLinearGradient
 
@@ -74,7 +73,7 @@ class _Spinner(QLabel):
         self._t = QTimer(self)
         self._t.timeout.connect(self._tick)
         self.setAlignment(Qt.AlignCenter)
-        self.setStyleSheet("color: #5b8af0; font-size: 22px; background: transparent;")
+        self.setStyleSheet("color: #8B5CF6; font-size: 22px; background: transparent;")
         self.setVisible(False)
 
     def start(self):
@@ -100,11 +99,11 @@ class _Badge(QLabel):
         self.setAlignment(Qt.AlignCenter)
         self.setVisible(False)
 
-    def show_info(self, text: str, color: str = "#5b8af0"):
+    def show_info(self, text: str, color: str = "#8B5CF6"):
         self.setText(text)
         self.setStyleSheet(f"""
-            background-color: rgba(91,138,240,0.10);
-            border: 1px solid rgba(91,138,240,0.30);
+            background-color: rgba(139,92,246,0.10);
+            border: 1px solid rgba(139,92,246,0.30);
             border-radius: 12px;
             padding: 6px 18px;
             font-size: 13px;
@@ -115,18 +114,18 @@ class _Badge(QLabel):
 
     def show_success(self, text: str):
         self.show_info(text, "#4ade80")
-        self.setStyleSheet(self.styleSheet().replace("rgba(91,138,240,0.10)", "rgba(74,222,128,0.10)")
-                           .replace("rgba(91,138,240,0.30)", "rgba(74,222,128,0.30)"))
+        self.setStyleSheet(self.styleSheet().replace("rgba(139,92,246,0.10)", "rgba(74,222,128,0.10)")
+                   .replace("rgba(139,92,246,0.30)", "rgba(74,222,128,0.30)"))
 
     def show_warning(self, text: str):
         self.show_info(text, "#fbbf24")
-        self.setStyleSheet(self.styleSheet().replace("rgba(91,138,240,0.10)", "rgba(251,191,36,0.10)")
-                           .replace("rgba(91,138,240,0.30)", "rgba(251,191,36,0.30)"))
+        self.setStyleSheet(self.styleSheet().replace("rgba(139,92,246,0.10)", "rgba(251,191,36,0.10)")
+                   .replace("rgba(139,92,246,0.30)", "rgba(251,191,36,0.30)"))
 
     def show_error(self, text: str):
         self.show_info(text, "#f87171")
-        self.setStyleSheet(self.styleSheet().replace("rgba(91,138,240,0.10)", "rgba(248,113,113,0.10)")
-                           .replace("rgba(91,138,240,0.30)", "rgba(248,113,113,0.30)"))
+        self.setStyleSheet(self.styleSheet().replace("rgba(139,92,246,0.10)", "rgba(248,113,113,0.10)")
+                   .replace("rgba(139,92,246,0.30)", "rgba(248,113,113,0.30)"))
 
 
 # ── Login Page ──────────────────────────────────────────────────────────────────
@@ -134,6 +133,8 @@ class _Badge(QLabel):
 class LoadingPage(QWidget):
     def __init__(self, on_login_success, parent=None):
         super().__init__(parent)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet("background-color: #121212;")
         self.on_login_success = on_login_success
         self.poll_thread = None
         self.login_thread = None
@@ -145,13 +146,15 @@ class LoadingPage(QWidget):
 
         # ── Glass card ─────────────────────────────────────────────────
         card = QWidget(self)
+        card.setAttribute(Qt.WA_StyledBackground, True)
+        card.setAttribute(Qt.WA_StyledBackground, True)
         card.setObjectName("loginCard")
         card.setFixedWidth(420)
         card.setStyleSheet("""
             QWidget#loginCard {
-                background-color: rgba(30, 33, 48, 0.92);
-                border: 1px solid rgba(255,255,255,0.08);
-                border-top: 1px solid rgba(255,255,255,0.14);
+                background-color: rgba(30,30,30,0.92);
+                border: 1px solid rgba(80,86,120,0.08);
+                border-top: 1px solid rgba(80,86,120,0.14);
                 border-radius: 24px;
             }
         """)
@@ -186,7 +189,7 @@ class LoadingPage(QWidget):
         title = QLabel("TailChat", card)
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet(
-            "font-size: 30px; font-weight: 700; color: #ffffff; "
+            "font-size: 30px; font-weight: 700; color: #F8F8F2; "
             "letter-spacing: -0.5px; background: transparent;"
         )
         lay.addWidget(title)
@@ -195,7 +198,7 @@ class LoadingPage(QWidget):
         sub = QLabel("Private chat & voice over your Tailscale network", card)
         sub.setAlignment(Qt.AlignCenter)
         sub.setWordWrap(True)
-        sub.setStyleSheet("font-size: 13px; color: #6b7489; background: transparent;")
+        sub.setStyleSheet("font-size: 13px; color: #98A0C6; background: transparent;")
         lay.addWidget(sub)
         lay.addSpacing(32)
 
@@ -214,7 +217,7 @@ class LoadingPage(QWidget):
         self.status_lbl.setWordWrap(True)
         self.status_lbl.setAlignment(Qt.AlignCenter)
         self.status_lbl.setStyleSheet(
-            "color: #6b7489; font-size: 13px; min-height: 40px; "
+            "color: #98A0C6; font-size: 13px; min-height: 40px; "
             "line-height: 1.5; background: transparent;"
         )
         lay.addWidget(self.status_lbl)
@@ -225,7 +228,7 @@ class LoadingPage(QWidget):
         self.remember_cb.setChecked(True)
         self.remember_cb.setVisible(False)
         self.remember_cb.setStyleSheet(
-            "color: #6b7489; font-size: 13px; spacing: 8px; background: transparent;"
+            "color: #98A0C6; font-size: 13px; spacing: 8px; background: transparent;"
         )
         lay.addWidget(self.remember_cb, alignment=Qt.AlignCenter)
         lay.addSpacing(12)
@@ -236,8 +239,8 @@ class LoadingPage(QWidget):
         self.action_btn.setStyleSheet("""
             QPushButton {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #4f7de8, stop:1 #6a9af6);
-                color: #ffffff;
+                    stop:0 #8B5CF6, stop:1 #A78BFA);
+                color: #F8F8F2;
                 border: none;
                 border-radius: 14px;
                 font-size: 15px;
@@ -246,15 +249,15 @@ class LoadingPage(QWidget):
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
-                    stop:0 #5b8af0, stop:1 #7aabff);
+                    stop:0 #8B5CF6, stop:1 #7aabff);
             }
             QPushButton:pressed {
                 background: qlineargradient(x1:0,y1:0,x2:1,y2:0,
                     stop:0 #3d64c8, stop:1 #5079e0);
             }
             QPushButton:disabled {
-                background: rgba(91,138,240,0.20);
-                color: rgba(255,255,255,0.35);
+                background: rgba(139,92,246,0.20);
+                color: rgba(248,248,242,0.35);
             }
         """)
         self.action_btn.clicked.connect(self.check_status)
@@ -289,7 +292,7 @@ class LoadingPage(QWidget):
 
     # ── Helpers ────────────────────────────────────────────────────────────────
 
-    def _status(self, text: str, color: str = "#6b7489"):
+    def _status(self, text: str, color: str = "#98A0C6"):
         self.status_lbl.setText(text)
         self.status_lbl.setStyleSheet(
             f"color: {color}; font-size: 13px; min-height: 40px; "
@@ -393,9 +396,9 @@ class LoadingPage(QWidget):
 
     def _connect_tailscale(self):
         self._busy(True)
-        self._status("Opening Tailscale authentication in your browser…", "#5b8af0")
+        self._status("Opening Tailscale authentication in your browser…", "#8B5CF6")
         if run_tailscale_up():
-            self._status("Waiting for Tailscale to connect…", "#5b8af0")
+            self._status("Waiting for Tailscale to connect…", "#8B5CF6")
             self.poll_thread = TailscalePollThread()
             self.poll_thread.connected.connect(self._on_ts_connected)
             self.poll_thread.timed_out.connect(self._on_ts_timeout)
@@ -425,7 +428,7 @@ class LoadingPage(QWidget):
         self._status(
             "A Google sign-in tab has opened in your browser.\n"
             "Complete the login and return here.",
-            "#5b8af0"
+            "#8B5CF6"
         )
         self.login_thread = LoginThread()
         self.login_thread.finished.connect(self._on_login_done)

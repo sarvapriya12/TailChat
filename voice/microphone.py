@@ -32,7 +32,7 @@ class MicrophoneReader:
                 is_speaking = rms > 150  # VAD threshold
                 
                 pcm_data = indata.tobytes()
-                self.callback(pcm_data, is_speaking)
+                self.callback(pcm_data, is_speaking, float(rms))
                 
             self.stream = sd.InputStream(
                 device=self.device_index,

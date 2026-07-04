@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QMessageBox, QDialog, QStackedWidget,
-                               QFrame)
+                               QGraphicsDropShadowEffect, QFrame, QLineEdit)
 from PySide6.QtCore import Qt, QTimer, Slot
 from PySide6.QtGui import QPixmap, QPainter, QPainterPath, QColor
 from qfluentwidgets import SmoothScrollArea, PrimaryPushButton, PushButton, LineEdit
@@ -59,15 +59,17 @@ class _AvatarLabel(QLabel):
         initial = (name or "?")[0].upper()
         self.setText(initial)
         self.setStyleSheet(
-            f"background-color: rgba(91,138,240,0.18); "
+            f"background-color: rgba(139,92,246,0.18); "
             f"border-radius: {self._size // 2}px; "
-            f"font-weight: 700; font-size: {self._size // 2}px; color: #5b8af0;"
+            f"font-weight: 700; font-size: {self._size // 2}px; color: #8B5CF6;"
         )
 
 
 class HomePage(QWidget):
     def __init__(self, on_logout, on_enter_room, parent=None):
         super().__init__(parent)
+        self.setAttribute(Qt.WA_StyledBackground, True)
+        self.setStyleSheet("background-color: #121212;")
         self.on_logout = on_logout
         self.on_enter_room = on_enter_room
         self.selected_room_id = None
@@ -79,12 +81,14 @@ class HomePage(QWidget):
 
         # ── Top header bar ─────────────────────────────────────────────
         header = QWidget(self)
+        header.setAttribute(Qt.WA_StyledBackground, True)
+        header.setAttribute(Qt.WA_StyledBackground, True)
         header.setObjectName("homeHeader")
         header.setFixedHeight(64)
         header.setStyleSheet("""
             QWidget#homeHeader {
-                background-color: rgba(24,27,36,0.95);
-                border-bottom: 1px solid rgba(255,255,255,0.06);
+                background-color: transparent;
+                border: none;
             }
         """)
         h_lay = QHBoxLayout(header)
@@ -93,17 +97,17 @@ class HomePage(QWidget):
 
         logo_lbl = QLabel("TailChat", header)
         logo_lbl.setStyleSheet(
-            "font-size: 18px; font-weight: 700; color: #ffffff; "
+            "font-size: 18px; font-weight: 700; color: #F8F8F2; "
             "letter-spacing: -0.3px; background: transparent;"
         )
         h_lay.addWidget(logo_lbl)
 
         dot = QLabel("•", header)
-        dot.setStyleSheet("color: #3a3f52; font-size: 14px; background: transparent;")
+        dot.setStyleSheet("color: #2D2D30; font-size: 14px; background: transparent;")
         h_lay.addWidget(dot)
 
         self.header_status = QLabel("Lobby", header)
-        self.header_status.setStyleSheet("font-size: 14px; color: #6b7489; background: transparent;")
+        self.header_status.setStyleSheet("font-size: 14px; color: #98A0C6; background: transparent;")
         h_lay.addWidget(self.header_status)
 
         h_lay.addStretch()
@@ -113,13 +117,17 @@ class HomePage(QWidget):
         h_lay.addWidget(self.header_avatar)
 
         self.header_name = QLabel("", header)
-        self.header_name.setStyleSheet("font-size: 13px; font-weight: 600; color: #e8ecf4; background: transparent;")
+        self.header_name.setStyleSheet("font-size: 13px; font-weight: 600; color: #F8F8F2; background: transparent;")
         h_lay.addWidget(self.header_name)
 
         root.addWidget(header)
 
         # ── Main area ──────────────────────────────────────────────────
         main_area = QWidget(self)
+        main_area.setFocusPolicy(Qt.ClickFocus)
+        main_area.setAttribute(Qt.WA_StyledBackground, True)
+        main_area.setAttribute(Qt.WA_StyledBackground, True)
+        main_area.setStyleSheet("background-color: #121212;")
         main_lay = QHBoxLayout(main_area)
         main_lay.setContentsMargins(24, 24, 24, 24)
         main_lay.setSpacing(18)
@@ -127,11 +135,14 @@ class HomePage(QWidget):
 
         # ── LEFT: Room list ────────────────────────────────────────────
         rooms_col = QWidget(main_area)
+        rooms_col.setFocusPolicy(Qt.ClickFocus)
+        rooms_col.setAttribute(Qt.WA_StyledBackground, True)
+        rooms_col.setAttribute(Qt.WA_StyledBackground, True)
         rooms_col.setObjectName("roomsPanel")
         rooms_col.setStyleSheet("""
             QWidget#roomsPanel {
-                background-color: rgba(24,27,36,0.60);
-                border: 1px solid rgba(255,255,255,0.06);
+                background-color: #121212;
+                border: 1px solid rgba(255,255,255,0.05);
                 border-radius: 18px;
             }
         """)
@@ -143,7 +154,7 @@ class HomePage(QWidget):
         rooms_hdr = QHBoxLayout()
         rooms_title = QLabel("Active Rooms", rooms_col)
         rooms_title.setStyleSheet(
-            "font-size: 16px; font-weight: 700; color: #e8ecf4; background: transparent;"
+            "font-size: 16px; font-weight: 700; color: #F8F8F2; background: transparent;"
         )
         rooms_hdr.addWidget(rooms_title)
         rooms_hdr.addStretch()
@@ -152,22 +163,47 @@ class HomePage(QWidget):
         self.refresh_btn.setObjectName("iconButton")
         self.refresh_btn.setFixedSize(32, 32)
         self.refresh_btn.setToolTip("Refresh rooms")
+        self.refresh_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #121212;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 6px;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #1E1E1E;
+            }
+        """)
         self.refresh_btn.clicked.connect(self._refresh_clicked)
         rooms_hdr.addWidget(self.refresh_btn)
         rooms_lay.addLayout(rooms_hdr)
 
         # Search
-        self.search_input = LineEdit(rooms_col)
+        self.search_input = QLineEdit(rooms_col)
         self.search_input.setPlaceholderText("🔍  Search rooms…")
+        self.search_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #121212;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 6px;
+                color: white;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            QLineEdit:focus {
+                border: 1px solid white;
+            }
+        """)
         self.search_input.textChanged.connect(self.filter_rooms)
         rooms_lay.addWidget(self.search_input)
 
         # Scroll area for cards
         self.room_scroll = SmoothScrollArea(rooms_col)
         self.room_scroll.setWidgetResizable(True)
-        self.room_scroll.setStyleSheet("background: transparent; border: none;")
+        self.room_scroll.setStyleSheet("background: #121212; border: none;")
         self.room_content = QWidget()
-        self.room_content.setStyleSheet("background: transparent;")
+        self.room_content.setAttribute(Qt.WA_StyledBackground, True)
+        self.room_content.setStyleSheet("background: #121212;")
         self.room_layout = QVBoxLayout(self.room_content)
         self.room_layout.setAlignment(Qt.AlignTop)
         self.room_layout.setContentsMargins(0, 0, 4, 0)
@@ -178,19 +214,44 @@ class HomePage(QWidget):
         # Footer
         sep = QFrame(rooms_col)
         sep.setFrameShape(QFrame.HLine)
-        sep.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+        sep.setStyleSheet("background: rgba(80,86,120,0.06); max-height: 1px; border: none;")
         rooms_lay.addWidget(sep)
 
         footer = QHBoxLayout()
         footer.setSpacing(10)
         self.host_room_btn = QPushButton("＋  Host a Room", rooms_col)
         self.host_room_btn.setMinimumHeight(42)
+        self.host_room_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #8B5CF6;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 6px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #7C3AED;
+            }
+        """)
         self.host_room_btn.clicked.connect(self.host_room)
         footer.addWidget(self.host_room_btn)
 
         self.join_room_btn = QPushButton("→  Join Selected", rooms_col)
         self.join_room_btn.setObjectName("secondaryButton")
         self.join_room_btn.setMinimumHeight(42)
+        self.join_room_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #252526;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 6px;
+                color: white;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2D2D30;
+                border: 1px solid white;
+            }
+        """)
         self.join_room_btn.clicked.connect(self.join_selected_room)
         footer.addWidget(self.join_room_btn)
         rooms_lay.addLayout(footer)
@@ -199,11 +260,12 @@ class HomePage(QWidget):
 
         # ── RIGHT: Peers panel ─────────────────────────────────────────
         peers_col = QWidget(main_area)
-        peers_col.setObjectName("peersPanel")
+        peers_col.setAttribute(Qt.WA_StyledBackground, True)
+        peers_col.setAttribute(Qt.WA_StyledBackground, True)
         peers_col.setStyleSheet("""
             QWidget#peersPanel {
-                background-color: rgba(24,27,36,0.60);
-                border: 1px solid rgba(255,255,255,0.06);
+                background-color: #121212;
+                border: 1px solid rgba(255,255,255,0.05);
                 border-radius: 18px;
             }
         """)
@@ -214,20 +276,21 @@ class HomePage(QWidget):
 
         peers_title = QLabel("Online Peers", peers_col)
         peers_title.setStyleSheet(
-            "font-size: 14px; font-weight: 700; color: #e8ecf4; background: transparent;"
+            "font-size: 14px; font-weight: 700; color: #F8F8F2; background: transparent;"
         )
         peers_lay.addWidget(peers_title)
 
         sep2 = QFrame(peers_col)
         sep2.setFrameShape(QFrame.HLine)
-        sep2.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+        sep2.setStyleSheet("background: rgba(80,86,120,0.06); max-height: 1px; border: none;")
         peers_lay.addWidget(sep2)
 
         self.peers_scroll = SmoothScrollArea(peers_col)
         self.peers_scroll.setWidgetResizable(True)
-        self.peers_scroll.setStyleSheet("background: transparent; border: none;")
+        self.peers_scroll.setStyleSheet("background: #121212; border: none;")
         self.peers_content = QWidget()
-        self.peers_content.setStyleSheet("background: transparent;")
+        self.peers_content.setAttribute(Qt.WA_StyledBackground, True)
+        self.peers_content.setStyleSheet("background: #121212;")
         self.peers_layout = QVBoxLayout(self.peers_content)
         self.peers_layout.setAlignment(Qt.AlignTop)
         self.peers_layout.setContentsMargins(0, 0, 0, 0)
@@ -241,17 +304,20 @@ class HomePage(QWidget):
         main_area_widget = main_area
 
         loading_widget = QWidget(self)
+        loading_widget.setAttribute(Qt.WA_StyledBackground, True)
+        loading_widget.setAttribute(Qt.WA_StyledBackground, True)
+        loading_widget.setStyleSheet("background-color: transparent;")
         loading_lay = QVBoxLayout(loading_widget)
         loading_lay.setAlignment(Qt.AlignCenter)
         self.loading_icon = QLabel("⠋", loading_widget)
         self.loading_icon.setStyleSheet(
-            "font-size: 52px; color: #5b8af0; background: transparent;"
+            "font-size: 52px; color: #8B5CF6; background: transparent;"
         )
         self.loading_icon.setAlignment(Qt.AlignCenter)
         loading_lay.addWidget(self.loading_icon)
         self.loading_text = QLabel("Connecting…", loading_widget)
         self.loading_text.setStyleSheet(
-            "font-size: 16px; color: #6b7489; margin-top: 16px; background: transparent;"
+            "font-size: 16px; color: #98A0C6; margin-top: 16px; background: transparent;"
         )
         self.loading_text.setAlignment(Qt.AlignCenter)
         loading_lay.addWidget(self.loading_text)
@@ -259,6 +325,8 @@ class HomePage(QWidget):
         # Use a proper stacked layout
         from PySide6.QtWidgets import QStackedLayout
         self._stack = QStackedWidget(self)
+        self._stack.setAttribute(Qt.WA_StyledBackground, True)
+        self._stack.setStyleSheet("background-color: transparent;")
         self._stack.addWidget(main_area)       # 0 — lobby
         self._stack.addWidget(loading_widget)  # 1 — loading
         root.addWidget(self._stack, stretch=1)
@@ -268,7 +336,6 @@ class HomePage(QWidget):
         self._spinner_frames = ["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"]
         self._spinner_idx = 0
         self.anim_timer = QTimer(self)
-        self.anim_timer.timeout.connect(self._tick_anim)
 
         room_service.signals.room_joined.connect(self.on_room_joined)
         room_service.signals.error_occurred.connect(self.on_room_error)
@@ -313,7 +380,7 @@ class HomePage(QWidget):
             shown += 1
         if shown == 0:
             lbl = QLabel("No active rooms.\nHost one to get started! 🚀", self.room_content)
-            lbl.setStyleSheet("color: #4a5168; font-size: 14px; background: transparent;")
+            lbl.setStyleSheet("color: #98A0C6; font-size: 14px; background: transparent;")
             lbl.setAlignment(Qt.AlignCenter)
             self.room_layout.addWidget(lbl)
 
@@ -342,25 +409,27 @@ class HomePage(QWidget):
         member_count = len(members) if isinstance(members, list) else 0
 
         card = QWidget(self.room_content)
+        card.setAttribute(Qt.WA_StyledBackground, True)
+        card.setAttribute(Qt.WA_StyledBackground, True)
         card.setObjectName("roomCard")
         card.setCursor(Qt.PointingHandCursor)
         _NORMAL = """
             QWidget#roomCard {
-                background-color: rgba(30,33,48,0.70);
-                border: 1px solid rgba(255,255,255,0.07);
+                background-color: rgba(37,37,38,0.70);
+                border: 1px solid rgba(80,86,120,0.07);
                 border-radius: 14px;
             }
             QWidget#roomCard:hover {
-                background-color: rgba(91,138,240,0.08);
-                border: 1px solid rgba(91,138,240,0.28);
+                background-color: rgba(139,92,246,0.08);
+                border: 1px solid rgba(139,92,246,0.28);
             }
         """
         _SELECTED = """
             QWidget#roomCard {
-                background-color: rgba(91,138,240,0.14);
-                border: 1px solid rgba(91,138,240,0.50);
+                background-color: rgba(139,92,246,0.14);
+                border: 1px solid rgba(139,92,246,0.50);
                 border-radius: 14px;
-                border-left: 3px solid #5b8af0;
+                border-left: 3px solid #8B5CF6;
             }
         """
         card.setStyleSheet(_NORMAL)
@@ -379,10 +448,10 @@ class HomePage(QWidget):
         info.setSpacing(3)
         name_lbl = QLabel(room_name, card)
         name_lbl.setStyleSheet(
-            "font-size: 15px; font-weight: 700; color: #e8ecf4; background: transparent;"
+            "font-size: 15px; font-weight: 700; color: #F8F8F2; background: transparent;"
         )
         host_lbl = QLabel(f"Host: {host_name}  ·  {room.get('host_ip','')}", card)
-        host_lbl.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        host_lbl.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         info.addWidget(name_lbl)
         info.addWidget(host_lbl)
         cl.addLayout(info)
@@ -394,10 +463,10 @@ class HomePage(QWidget):
         if member_count > 0:
             b = QLabel(f"👥 {member_count}", card)
             b.setStyleSheet("""
-                background: rgba(91,138,240,0.12);
-                border: 1px solid rgba(91,138,240,0.28);
+                background: rgba(139,92,246,0.12);
+                border: 1px solid rgba(139,92,246,0.28);
                 border-radius: 8px; padding: 2px 8px;
-                font-size: 12px; font-weight: 600; color: #5b8af0;
+                font-size: 12px; font-weight: 600; color: #8B5CF6;
             """)
             badges.addWidget(b)
         if is_mine:
@@ -461,15 +530,17 @@ class HomePage(QWidget):
                 info = QVBoxLayout()
                 info.setSpacing(0)
                 n = QLabel(name, self.peers_content)
-                n.setStyleSheet("font-size: 13px; font-weight: 600; color: #e8ecf4; background: transparent;")
+                n.setStyleSheet("font-size: 13px; font-weight: 600; color: #F8F8F2; background: transparent;")
                 i = QLabel(ip, self.peers_content)
-                i.setStyleSheet("font-size: 11px; color: #4a5168; background: transparent;")
+                i.setStyleSheet("font-size: 11px; color: #98A0C6; background: transparent;")
                 info.addWidget(n)
                 info.addWidget(i)
                 row.addLayout(info)
                 row.addStretch()
 
                 wrapper = QWidget(self.peers_content)
+                wrapper.setAttribute(Qt.WA_StyledBackground, True)
+                wrapper.setAttribute(Qt.WA_StyledBackground, True)
                 wrapper.setStyleSheet("background: transparent;")
                 wrapper.setLayout(row)
                 self.peers_layout.addWidget(wrapper)
@@ -477,7 +548,7 @@ class HomePage(QWidget):
 
             if online == 0:
                 lbl = QLabel("No peers online", self.peers_content)
-                lbl.setStyleSheet("color: #4a5168; font-size: 13px; background: transparent;")
+                lbl.setStyleSheet("color: #98A0C6; font-size: 13px; background: transparent;")
                 lbl.setAlignment(Qt.AlignCenter)
                 self.peers_layout.addWidget(lbl)
         except Exception as e:

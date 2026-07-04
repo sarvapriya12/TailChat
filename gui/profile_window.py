@@ -47,7 +47,7 @@ class ProfileDialog(QDialog):
         self.setStyleSheet("""
             QDialog {
                 background-color: #13151c;
-                border: 1px solid rgba(255,255,255,0.09);
+                border: 1px solid rgba(80,86,120,0.09);
                 border-radius: 18px;
             }
         """)
@@ -58,11 +58,12 @@ class ProfileDialog(QDialog):
 
         # ── Hero banner ────────────────────────────────────────────────
         banner = QWidget(self)
+        banner.setAttribute(Qt.WA_StyledBackground, True)
         banner.setFixedHeight(110)
         banner.setStyleSheet("""
             background: qlineargradient(x1:0,y1:0,x2:1,y2:1,
                 stop:0 rgba(61,100,200,0.60),
-                stop:0.5 rgba(91,138,240,0.40),
+                stop:0.5 rgba(139,92,246,0.40),
                 stop:1 rgba(124,159,244,0.50));
             border-radius: 0px;
         """)
@@ -91,7 +92,7 @@ class ProfileDialog(QDialog):
             self.change_av_btn.setToolTip("Change profile photo")
             self.change_av_btn.setStyleSheet("""
                 QPushButton {
-                    background-color: #5b8af0; color: #fff;
+                    background-color: #8B5CF6; color: #F8F8F2;
                     border: 2px solid #13151c; border-radius: 15px;
                     font-size: 14px;
                 }
@@ -109,6 +110,7 @@ class ProfileDialog(QDialog):
         outer.addWidget(scroll, stretch=1)
 
         body = QWidget()
+        body.setAttribute(Qt.WA_StyledBackground, True)
         body.setStyleSheet("background: transparent;")
         lay = QVBoxLayout(body)
         lay.setContentsMargins(28, 12, 28, 20)
@@ -118,33 +120,33 @@ class ProfileDialog(QDialog):
         # ── Name ───────────────────────────────────────────────────────
         if is_self:
             name_lbl = QLabel("Display Name", body)
-            name_lbl.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+            name_lbl.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
             lay.addWidget(name_lbl)
             self.name_input = QLineEdit(body)
             self.name_input.setText(user_info.get("display_name", ""))
             self.name_input.setStyleSheet("""
-                background: #1a1d27; border: 1px solid rgba(255,255,255,0.09);
-                border-radius: 10px; padding: 9px 14px; color: #e8ecf4; font-size: 14px;
+                background: #1a1d27; border: 1px solid rgba(80,86,120,0.09);
+                border-radius: 10px; padding: 9px 14px; color: #F8F8F2; font-size: 14px;
             """)
             lay.addWidget(self.name_input)
         else:
             name_lbl = QLabel(user_info.get("display_name", "Unknown User"), body)
             name_lbl.setStyleSheet(
-                "font-size: 22px; font-weight: 700; color: #e8ecf4; background: transparent;"
+                "font-size: 22px; font-weight: 700; color: #F8F8F2; background: transparent;"
             )
             lay.addWidget(name_lbl)
 
             if user_info.get("email"):
                 email_lbl = QLabel(user_info["email"], body)
                 email_lbl.setStyleSheet(
-                    "font-size: 13px; color: #4a5168; background: transparent;"
+                    "font-size: 13px; color: #98A0C6; background: transparent;"
                 )
                 lay.addWidget(email_lbl)
 
         # ── Bio ────────────────────────────────────────────────────────
         lay.addSpacing(4)
         bio_title = QLabel("Bio", body)
-        bio_title.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        bio_title.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         lay.addWidget(bio_title)
 
         self.bio_input = QTextEdit(body)
@@ -152,15 +154,15 @@ class ProfileDialog(QDialog):
         self.bio_input.setReadOnly(not is_self)
         self.bio_input.setFixedHeight(90)
         self.bio_input.setStyleSheet("""
-            background: #1a1d27; border: 1px solid rgba(255,255,255,0.09);
-            border-radius: 10px; padding: 8px 12px; color: #e8ecf4; font-size: 14px;
+            background: #1a1d27; border: 1px solid rgba(80,86,120,0.09);
+            border-radius: 10px; padding: 8px 12px; color: #F8F8F2; font-size: 14px;
         """)
         lay.addWidget(self.bio_input)
 
         # ── Links ──────────────────────────────────────────────────────
         lay.addSpacing(4)
         links_title = QLabel("Links", body)
-        links_title.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        links_title.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         lay.addWidget(links_title)
 
         if is_self:
@@ -168,8 +170,8 @@ class ProfileDialog(QDialog):
             self.links_input.setPlainText(user_info.get("links", ""))
             self.links_input.setFixedHeight(72)
             self.links_input.setStyleSheet("""
-                background: #1a1d27; border: 1px solid rgba(255,255,255,0.09);
-                border-radius: 10px; padding: 8px 12px; color: #e8ecf4; font-size: 14px;
+                background: #1a1d27; border: 1px solid rgba(80,86,120,0.09);
+                border-radius: 10px; padding: 8px 12px; color: #F8F8F2; font-size: 14px;
             """)
             lay.addWidget(self.links_input)
         else:
@@ -181,14 +183,14 @@ class ProfileDialog(QDialog):
                     btn.setCursor(Qt.PointingHandCursor)
                     btn.setStyleSheet("""
                         QPushButton {
-                            background: rgba(91,138,240,0.08);
-                            border: 1px solid rgba(91,138,240,0.22);
+                            background: rgba(139,92,246,0.08);
+                            border: 1px solid rgba(139,92,246,0.22);
                             border-radius: 8px; padding: 6px 12px;
-                            color: #5b8af0; font-size: 13px; text-align: left;
+                            color: #8B5CF6; font-size: 13px; text-align: left;
                         }
                         QPushButton:hover {
-                            background: rgba(91,138,240,0.16);
-                            border-color: rgba(91,138,240,0.45);
+                            background: rgba(139,92,246,0.16);
+                            border-color: rgba(139,92,246,0.45);
                             color: #7aabff;
                         }
                     """)
@@ -196,7 +198,7 @@ class ProfileDialog(QDialog):
                     lay.addWidget(btn)
             else:
                 no_links = QLabel("No links added.", body)
-                no_links.setStyleSheet("font-size: 13px; color: #4a5168; background: transparent;")
+                no_links.setStyleSheet("font-size: 13px; color: #98A0C6; background: transparent;")
                 lay.addWidget(no_links)
 
         lay.addStretch()
@@ -204,10 +206,11 @@ class ProfileDialog(QDialog):
         # ── Action button ──────────────────────────────────────────────
         sep = QFrame(self)
         sep.setFrameShape(QFrame.HLine)
-        sep.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+        sep.setStyleSheet("background: rgba(80,86,120,0.06); max-height: 1px; border: none;")
         outer.addWidget(sep)
 
         btn_bar = QWidget(self)
+        btn_bar.setAttribute(Qt.WA_StyledBackground, True)
         btn_bar.setStyleSheet("background: transparent;")
         btn_bar.setFixedHeight(60)
         bb_lay = QHBoxLayout(btn_bar)
@@ -245,9 +248,9 @@ class ProfileDialog(QDialog):
         name = self.user_info.get("display_name", "?")
         self.avatar_lbl.setText((name or "?")[0].upper())
         self.avatar_lbl.setStyleSheet(
-            f"background: rgba(91,138,240,0.18); border: 3px solid #13151c; "
+            f"background: rgba(139,92,246,0.18); border: 3px solid #13151c; "
             f"border-radius: {size // 2}px; font-weight: 700; "
-            f"font-size: {size // 2 - 4}px; color: #5b8af0;"
+            f"font-size: {size // 2 - 4}px; color: #8B5CF6;"
         )
 
     def _change_avatar(self):

@@ -174,10 +174,12 @@ TailChat/
 ## Features
 
 - **Text chat** — Room-scoped channels with message history (last 100 messages replayed on join)
-- **Voice calls** — Low-latency Opus-encoded audio with mute/deafen controls and speaking glow indicator
+- **Voice calls** — Low-latency Opus-encoded audio with mute/deafen controls.
+- **Dynamic Audio Indicator** — Real-time RMS audio level calculation creates a reactive, pulsing glowing border around avatars when speaking.
 - **Video calls** — 15 fps JPEG-compressed webcam stream with camera toggle
 - **File transfer** — Direct peer-to-peer file sending via the host's TCP file pipe with accept/decline UI
-- **Profile photos** — Upload, crop to circle, stored as base64 — visible in sidebar and room member list
+- **Profile photos & Editor** — Upload, pan (drag), zoom (scroll), and rotate 360-degrees (slider) your circular profile photo.
+- **In-App Documentation** — A dedicated "About" page with step-by-step connection guides for Tailscale, including shared vs. separate account setups.
 - **Private rooms** — Optional password protection for rooms
 - **Remember Me** — 7-day local session persistence (no re-login needed)
 - **Theme switching** — Dark / Light theme toggle in settings

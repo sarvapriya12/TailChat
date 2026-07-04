@@ -17,7 +17,7 @@ def _section(text: str, parent=None) -> QLabel:
     lbl = QLabel(text, parent)
     lbl.setStyleSheet(
         "font-size: 11px; font-weight: 700; letter-spacing: 1.2px; "
-        "color: #4a5168; text-transform: uppercase; "
+        "color: #98A0C6; text-transform: uppercase; "
         "background: transparent; margin-top: 8px; margin-bottom: 2px;"
     )
     return lbl
@@ -26,13 +26,13 @@ def _section(text: str, parent=None) -> QLabel:
 def _divider(parent=None) -> QFrame:
     f = QFrame(parent)
     f.setFrameShape(QFrame.HLine)
-    f.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+    f.setStyleSheet("background: rgba(80,86,120,0.06); max-height: 1px; border: none;")
     return f
 
 
 def _field_label(text: str, parent=None) -> QLabel:
     lbl = QLabel(text, parent)
-    lbl.setStyleSheet("font-size: 13px; color: #8892a8; background: transparent;")
+    lbl.setStyleSheet("font-size: 13px; color: #98A0C6; background: transparent;")
     return lbl
 
 
@@ -46,7 +46,7 @@ class SettingsDialog(QDialog):
         self.setStyleSheet("""
             QDialog {
                 background-color: #13151c;
-                border: 1px solid rgba(255,255,255,0.09);
+                border: 1px solid rgba(80,86,120,0.09);
                 border-radius: 18px;
             }
         """)
@@ -59,9 +59,10 @@ class SettingsDialog(QDialog):
 
         # ── Title bar ──────────────────────────────────────────────────
         title_bar = QWidget(self)
+        title_bar.setAttribute(Qt.WA_StyledBackground, True)
         title_bar.setStyleSheet("""
-            background-color: rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background-color: rgba(80,86,120,0.03);
+            border-bottom: 1px solid rgba(80,86,120,0.07);
             border-radius: 0px;
         """)
         title_bar.setFixedHeight(56)
@@ -69,7 +70,7 @@ class SettingsDialog(QDialog):
         tb_lay.setContentsMargins(28, 0, 20, 0)
         title_lbl = QLabel("Settings & Profile", title_bar)
         title_lbl.setStyleSheet(
-            "font-size: 17px; font-weight: 700; color: #e8ecf4; background: transparent;"
+            "font-size: 17px; font-weight: 700; color: #F8F8F2; background: transparent;"
         )
         tb_lay.addWidget(title_lbl)
         tb_lay.addStretch()
@@ -77,7 +78,7 @@ class SettingsDialog(QDialog):
         close_btn.setFixedSize(30, 30)
         close_btn.setStyleSheet("""
             QPushButton {
-                background: rgba(255,255,255,0.06); color: #8892a8;
+                background: rgba(80,86,120,0.06); color: #98A0C6;
                 border: none; border-radius: 8px; font-size: 13px;
             }
             QPushButton:hover { background: rgba(248,113,113,0.15); color: #f87171; }
@@ -93,6 +94,7 @@ class SettingsDialog(QDialog):
         outer.addWidget(scroll, stretch=1)
 
         body = QWidget()
+        body.setAttribute(Qt.WA_StyledBackground, True)
         body.setStyleSheet("background: transparent;")
         lay = QVBoxLayout(body)
         lay.setContentsMargins(28, 24, 28, 12)
@@ -105,9 +107,10 @@ class SettingsDialog(QDialog):
 
         # ── Big avatar ─────────────────────────────────────────────────
         av_area = QWidget(body)
+        av_area.setAttribute(Qt.WA_StyledBackground, True)
         av_area.setStyleSheet("""
-            background: rgba(91,138,240,0.05);
-            border: 1px dashed rgba(91,138,240,0.25);
+            background: rgba(139,92,246,0.05);
+            border: 1px dashed rgba(139,92,246,0.25);
             border-radius: 14px;
         """)
         av_lay = QVBoxLayout(av_area)
@@ -122,7 +125,7 @@ class SettingsDialog(QDialog):
         av_lay.addWidget(self._avatar_lbl, alignment=Qt.AlignCenter)
 
         av_hint = QLabel("Profile photo visible to other members", av_area)
-        av_hint.setStyleSheet("font-size: 12px; color: #4a5168; background: transparent;")
+        av_hint.setStyleSheet("font-size: 12px; color: #98A0C6; background: transparent;")
         av_hint.setAlignment(Qt.AlignCenter)
         av_lay.addWidget(av_hint)
 
@@ -216,10 +219,11 @@ class SettingsDialog(QDialog):
         # ── Save / cancel ──────────────────────────────────────────────
         sep = QFrame(self)
         sep.setFrameShape(QFrame.HLine)
-        sep.setStyleSheet("background: rgba(255,255,255,0.06); max-height: 1px; border: none;")
+        sep.setStyleSheet("background: rgba(80,86,120,0.06); max-height: 1px; border: none;")
         outer.addWidget(sep)
 
         btn_bar = QWidget(self)
+        btn_bar.setAttribute(Qt.WA_StyledBackground, True)
         btn_bar.setStyleSheet("background: transparent;")
         btn_bar.setFixedHeight(64)
         btn_lay = QHBoxLayout(btn_bar)
@@ -268,8 +272,8 @@ class SettingsDialog(QDialog):
         name = self._settings.get("profile_name", "") or session.display_name or "?"
         self._avatar_lbl.setText(name[0].upper())
         self._avatar_lbl.setStyleSheet(
-            "background: rgba(91,138,240,0.18); border-radius: 48px; "
-            "font-weight: 700; font-size: 36px; color: #5b8af0;"
+            "background: rgba(139,92,246,0.18); border-radius: 48px; "
+            "font-weight: 700; font-size: 36px; color: #8B5CF6;"
         )
 
     def _pick_avatar(self):

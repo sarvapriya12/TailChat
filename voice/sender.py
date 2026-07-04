@@ -5,10 +5,11 @@ from auth.session import session
 from utils.logger import logger
 
 class VoiceSender:
-    def __init__(self, host_ip: str, host_port: int, on_speaking_changed=None):
+    def __init__(self, host_ip: str, host_port: int, on_speaking_changed=None, on_volume_changed=None):
         self.host_ip = host_ip
         self.host_port = host_port
         self.on_speaking_changed = on_speaking_changed
+        self.on_volume_changed = on_volume_changed
         self.sock = None
         self.encoder = None
         self.mic = None
@@ -41,7 +42,7 @@ class VoiceSender:
         self.is_muted = muted
         logger.info(f"Voice mute state changed: {muted}")
 
-    def send_audio_frame(self, pcm_bytes: bytes, is_speaking: bool):
+    def send_audio_frame(self, pcm_bytes: bytes, is_speaking: bool, rms: float = 0.0):
         """Callback invoked by the mic reader. Encodes and transmits the frame."""
         if self.is_muted or not self.sock or not self.encoder:
             if self.last_speaking_state:
@@ -55,6 +56,9 @@ class VoiceSender:
             if self.on_speaking_changed:
                 self.on_speaking_changed(is_speaking)
                 
+        if is_speaking and self.on_volume_changed:
+            self.on_volume_changed(rms)
+
         if not is_speaking:
             return
             
@@ -65,7 +69,7 @@ class VoiceSender:
                 return
                 
             # Pack details: [1 byte user_id_len] + [user_id as string] + [Opus bytes]
-            user_id_bytes = session.user_id.encode("utf-8")
+            user_id_bytes = session.net_id.encode("utf-8")
             packet = bytes([len(user_id_bytes)]) + user_id_bytes + bytes(encoded)
             
             # Send UDP packet to host

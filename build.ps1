@@ -14,7 +14,7 @@
 #    5. Creates a distributable TailChat_Release.zip
 # ============================================================
 
-$ErrorActionPreference = "Stop"
+# $ErrorActionPreference = "Stop"
 $ROOT = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 Write-Host ""
@@ -53,13 +53,13 @@ if (Test-Path $VENV_PYARMOR) {
 
     if ($LASTEXITCODE -ne 0) {
         Write-Host "      WARNING: PyArmor returned exit code $LASTEXITCODE" -ForegroundColor Yellow
-        Write-Host "      (Trial may be exhausted — using previously obfuscated obf_dist/ files)" -ForegroundColor Yellow
+        Write-Host "      (Trial may be exhausted - using previously obfuscated obf_dist/ files)" -ForegroundColor Yellow
         Write-Host "      Continuing build with existing obf_dist/ contents..." -ForegroundColor Yellow
     } else {
         Write-Host "      Obfuscation complete." -ForegroundColor Green
     }
 } else {
-    Write-Host "      PyArmor not found — using existing obf_dist/ files." -ForegroundColor Yellow
+    Write-Host "      PyArmor not found - using existing obf_dist/ files." -ForegroundColor Yellow
 }
 
 # ── Step 1b: Always patch obf_dist/app.py with our bootstrapper ──────
@@ -98,7 +98,7 @@ def main():
     app.setStyleSheet(active_style)
 
     main_window = TailChatMainWindow()
-    main_window.setStyleSheet(active_style)
+    main_window.setStyleSheet(active_style + "\n#mainWindow { background-color: #121212; }")
     main_window.showMaximized()
 
     exit_code = app.exec()

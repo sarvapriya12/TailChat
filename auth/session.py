@@ -20,6 +20,15 @@ class UserSession:
 
     def is_logged_in(self) -> bool:
         return self.user_id is not None
+        
+    @property
+    def net_id(self) -> str:
+        """
+        Returns a unique ID for network communication and room logic.
+        Uses the tailscale_ip if available to prevent collisions when testing
+        with the same user_id across multiple devices, otherwise falls back to user_id.
+        """
+        return self.tailscale_ip if self.tailscale_ip else self.user_id
 
     def sync_to_supabase(self, auth_user) -> bool:
         """

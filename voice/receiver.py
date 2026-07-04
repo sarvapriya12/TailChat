@@ -7,10 +7,11 @@ from auth.session import session
 from utils.logger import logger
 
 class VoiceReceiver:
-    def __init__(self, host_ip: str, host_port: int, mixer: SpeakerMixer):
+    def __init__(self, host_ip: str, host_port: int, mixer: SpeakerMixer, on_volume_changed=None):
         self.host_ip = host_ip
         self.host_port = host_port
         self.mixer = mixer
+        self.on_volume_changed = on_volume_changed
         
         self.sock = None
         self.is_running = False
@@ -71,7 +72,7 @@ class VoiceReceiver:
 
     def keepalive_loop(self):
         """Sends periodic empty UDP packets to the host so it knows our UDP endpoint address."""
-        user_id_bytes = session.user_id.encode("utf-8")
+        user_id_bytes = session.net_id.encode("utf-8")
         # Empty packet has 0-length Opus bytes
         reg_packet = bytes([len(user_id_bytes)]) + user_id_bytes
         
@@ -117,6 +118,11 @@ class VoiceReceiver:
                     pcm_bytes = bytes(decoder.decode(opus_bytes))
                     # Add to speaker mixer queue
                     self.mixer.add_audio_frame(user_id, pcm_bytes)
+                    if self.on_volume_changed:
+                        import numpy as np
+                        pcm_data = np.frombuffer(pcm_bytes, dtype=np.int16)
+                        rms = np.sqrt(np.mean(pcm_data.astype(np.float32)**2))
+                        self.on_volume_changed(user_id, float(rms))
                     
             except Exception as e:
                 if self.is_running:
