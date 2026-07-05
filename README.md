@@ -46,11 +46,6 @@ Every time TailChat starts, the login screen runs through this exact sequence:
 ### Step 1 — Find the executable
 `utils/helpers.py → get_tailscale_executable()`
 
-Checks three locations in order:
-1. `C:\Program Files\Tailscale\tailscale.exe` (default install path)
-2. System `PATH` via `shutil.which("tailscale")`
-3. `%ProgramFiles%\Tailscale\tailscale.exe` (environment variable fallback)
-
 ### Step 2 — Determine connection state
 `utils/helpers.py → check_tailscale_status()`
 
